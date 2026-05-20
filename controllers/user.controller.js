@@ -19,4 +19,15 @@ exports.getUser = async(req,res) =>{
     }
 };
 
+exports.login = async(req,res) =>{
+    try{
+        const{email,password} = req.body;
+        const { user, token } = await userServices.loginUser(email, password);
+        res.status(200).json({ success: true, token, user });
+    }
+    catch(error){
+        res.status(400).json({ message: error.message });
+    }
+}
+
 

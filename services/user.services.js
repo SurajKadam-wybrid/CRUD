@@ -1,5 +1,6 @@
 const User = require('/Users/surajkadam/Desktop/CRUD/models/user.model.js');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken'); 
 
 exports.createUser = async(data) =>{
     const { name, email, password } = data; 
@@ -15,9 +16,16 @@ exports.findUserById = async(id) =>{
     return await User.findById(id);
 };
 
-exports.loginUser = async(data) => {
-    const {email , password} =data;
-    
-
-   
+exports.loginUser = async(email,password) => {
+const user =  await User.findOne({email});
+if(!user)
+    throw new Error('User not found');
+const checkPassword = await bcrypt.compare(password,user.password);
+if(!checkPassword)
+    throw new Error('Invalid credentials');
+const token = jwt.sign(
+    { id: user._id },
+        process.env.JWT_SECRET
+);
+return { user, token };   
 }

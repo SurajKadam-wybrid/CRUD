@@ -6,5 +6,7 @@ const userController = require('/Users/surajkadam/Desktop/CRUD/controllers/user.
 router.post('/register',userController.register);
 //router.post('/login',userController.login);
 router.get('/:id',userController.getUser);
+router.post('/login', userController.login);
+
 
 module.exports = router;
