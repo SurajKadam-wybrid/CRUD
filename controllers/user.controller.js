@@ -34,6 +34,10 @@ exports.login = async(req,res) =>{
 exports.updateUser = async (req, res) => {
     try {
         const id = req.params.id;
+        const loginid = req.user.id;
+        if(id !== loginid){
+            return res.status(403).json({ message: 'You dont have permission to update other user.' });         
+    }
         const user = await userServices.updateUser(id, req.body);
         res.status(200).json({ success: true, user });
     } catch (error) {
@@ -44,6 +48,10 @@ exports.updateUser = async (req, res) => {
 exports.deleteUser = async (req, res) => {
     try {
         const id = req.params.id;
+        const loginid = req.user.id;
+        if(id !== loginid){
+                return res.status(403).json({ message: 'You dont have permission to delete other user.' });         
+        }
         await userServices.deleteUser(id);
         res.status(200).json({ success: true, message: 'User deleted successfully' });
     } catch (error) {
@@ -51,4 +59,30 @@ exports.deleteUser = async (req, res) => {
     }
 };
 
+exports.getAllUsers = async (req, res) => {
+    try {
+
+        
+        const page   = req.query.page   || 1;
+       
+        const limit  = req.query.limit  || 10;
+      
+        const search = req.query.search || '';
+       
+        const result = await userServices.getAllUsers(
+            Number(page),
+            Number(limit),
+            search
+        );
+
+        res.status(200).json({
+            success: true,
+            ...result
+  
+        });
+
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
 

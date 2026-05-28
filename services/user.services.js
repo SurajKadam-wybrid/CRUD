@@ -10,18 +10,21 @@ exports.createUser = async (data) => {
     email,
     password: hashPassword,
   });
+  user.password = undefined;
   return user;
 };
 
 exports.findUserById = async (id) => {
-  return await User.findById(id);
+  return await User.findById(id,'email name');
 };
 
 exports.loginUser = async (email, password) => {
   const user = await User.findOne({ email });
   if (!user) throw new Error("User not found");
   const checkPassword = await bcrypt.compare(password, user.password);
+  
   if (!checkPassword) throw new Error("Invalid credentials");
+  user.password = undefined;
   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
   return { user, token };
 };
@@ -34,6 +37,44 @@ exports.updateUser = async (id, data) => {
 
 exports.deleteUser = async (id) => {
   const user = await User.findByIdAndDelete(id);
+  
   if (!user) throw new Error("User not found");
   return user;
+};
+
+
+exports.getAllUsers = async (page, limit, search) => {
+
+  
+  const query = {};
+  
+  if (search) {
+    
+      query.$or = [
+          { name:  { $regex: search, $options: 'i' } },
+          { email: { $regex: search, $options: 'i' } }
+      ];
+    
+  }
+
+  const skip = (page - 1) * limit;
+
+  const users = await User.find(query)
+      .select('-password')   
+      .skip(skip)           
+      .limit(limit);         
+
+  
+  const total = await User.countDocuments(query);
+ 
+
+  const totalPages = Math.ceil(total / limit);
+
+  return {
+      users,
+      total,        
+      totalPages,    
+      currentPage: page,
+      limit
+  };
 };

@@ -11,7 +11,8 @@ router.post('/register',validate(registerSchema),userController.register);
 router.post('/login', validate(loginSchema),userController.login);
 router.get('/:id', middleware,userController.getUser);
 router.put('/:id',middleware, validate(updateSchema), userController.updateUser);
-router.delete('/:id', middleware, userController.deleteUser);
+router.delete('/:id', middleware, userController.deleteUser)
+router.get('/',    middleware, userController.getAllUsers);   
 
 
 module.exports = router;
